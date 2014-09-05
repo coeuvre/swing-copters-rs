@@ -6,8 +6,11 @@ extern crate piston;
 extern crate sdl2_game_window;
 extern crate opengl_graphics;
 
+use std::rc::Rc;
+
 use opengl_graphics::{
     Gl,
+    Texture,
 };
 use sdl2_game_window::WindowSDL2;
 use graphics::*;
@@ -61,9 +64,16 @@ fn main() {
     land.anchor = [0.0, 0.0];
     land.position = [0.0, height as f64 - land.texture_size()[1]];
 
-    let mut copter = Sprite::from_texture_path(&asset_store.path("img/bear_0_0_0.png").unwrap()).unwrap();
+    let mut copter_textures = Vec::new();
+    for i in range(0i, 3) {
+        let path = asset_store.path(format!("img/bear_0_0_{}.png", i).as_slice()).unwrap();
+        copter_textures.push(Rc::new(Texture::from_path(&path).unwrap()));
+    }
+    let mut copter_texture_index = 0.0;
+    let ref tex = copter_textures[copter_texture_index as uint];
+    let mut copter = Sprite::from_texture(tex.clone());
     copter.anchor = [0.5, 0.8];
-    copter.position = [width as f64 / 2.0 + 100.0, height as f64 / 2.0];
+    copter.position = [width as f64 / 2.0, height as f64 / 2.0];
 
 
     let event_settings = EventSettings {
@@ -85,6 +95,9 @@ fn main() {
             },
             Update(args) => {
                 //copter.rotation += args.dt * 30.0;
+                copter_texture_index = copter_texture_index + args.dt * 3.0;
+                let ref tex = copter_textures[copter_texture_index as uint % copter_textures.len()];
+                copter.set_texture(tex.clone());
             },
             Input(input::Press(_)) => {
                 //copter.scale = [copter.scale[0] * -1.0, 1.0];

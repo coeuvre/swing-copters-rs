@@ -1,4 +1,6 @@
 
+use std::rc::Rc;
+
 use opengl_graphics::{
     Gl,
     Texture,
@@ -10,38 +12,47 @@ use graphics::internal::{
 };
 
 pub struct Sprite {
-    /// normalized
+    /// Normalized
     pub anchor: Vec2d,
 
     pub position: Vec2d,
+    /// In degree
     pub rotation: f64,
     pub scale: Vec2d,
 
     pub flip_x: bool,
     pub flip_y: bool,
 
-    texture: Texture,
+    texture: Rc<Texture>,
 }
 
 impl Sprite {
     pub fn from_texture_path(path: &Path) -> Option<Sprite> {
         match Texture::from_path(path) {
             Ok(tex) => {
-                Some(Sprite {
-                    anchor: [0.5, 0.5],
-
-                    position: [0.0, 0.0],
-                    rotation: 0.0,
-                    scale: [1.0, 1.0],
-
-                    flip_x: false,
-                    flip_y: false,
-
-                    texture: tex,
-                })
+                Some(Sprite::from_texture(Rc::new(tex)))
             },
             _ => { None },
         }
+    }
+
+    pub fn from_texture(texture: Rc<Texture>) -> Sprite {
+        Sprite {
+            anchor: [0.5, 0.5],
+
+            position: [0.0, 0.0],
+            rotation: 0.0,
+            scale: [1.0, 1.0],
+
+            flip_x: false,
+            flip_y: false,
+
+            texture: texture,
+        }
+    }
+
+    pub fn set_texture(&mut self, texture: Rc<Texture>) {
+        self.texture = texture;
     }
 
     pub fn draw(&self, c: &Context, gl: &mut Gl) {
@@ -68,7 +79,7 @@ impl Sprite {
         // for debug
         //model.rgb(1.0, 0.0, 0.0).draw(gl);
 
-        model.image(&self.texture).draw(gl);
+        model.image(&*self.texture).draw(gl);
 
         // for debug
         //c.trans(self.position[0], self.position[1]).rect(-5.0, -5.0, 10.0, 10.0).rgb(0.0, 0.0, 1.0).draw(gl);
@@ -91,4 +102,9 @@ impl Sprite {
         let (w, h) = self.texture.get_size();
         [w as f64, h as f64]
     }
+
+    pub fn texture(&self) -> Rc<Texture> {
+        self.texture.clone()
+    }
 }
+
