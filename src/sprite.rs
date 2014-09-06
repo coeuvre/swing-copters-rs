@@ -1,17 +1,13 @@
 
 use std::rc::Rc;
 
-use opengl_graphics::{
-    Gl,
-    Texture,
-};
 use graphics::*;
 use graphics::internal::{
     Vec2d,
     Rectangle,
 };
 
-pub struct Sprite {
+pub struct Sprite<I: ImageSize> {
     /// Normalized
     pub anchor: Vec2d,
 
@@ -23,20 +19,11 @@ pub struct Sprite {
     pub flip_x: bool,
     pub flip_y: bool,
 
-    texture: Rc<Texture>,
+    texture: Rc<I>,
 }
 
-impl Sprite {
-    pub fn from_texture_path(path: &Path) -> Option<Sprite> {
-        match Texture::from_path(path) {
-            Ok(tex) => {
-                Some(Sprite::from_texture(Rc::new(tex)))
-            },
-            _ => { None },
-        }
-    }
-
-    pub fn from_texture(texture: Rc<Texture>) -> Sprite {
+impl<I: ImageSize> Sprite<I> {
+    pub fn from_texture(texture: Rc<I>) -> Sprite<I> {
         Sprite {
             anchor: [0.5, 0.5],
 
@@ -51,11 +38,11 @@ impl Sprite {
         }
     }
 
-    pub fn set_texture(&mut self, texture: Rc<Texture>) {
+    pub fn set_texture(&mut self, texture: Rc<I>) {
         self.texture = texture;
     }
 
-    pub fn draw(&self, c: &Context, gl: &mut Gl) {
+    pub fn draw<B: BackEnd<I>>(&self, c: &Context, b: &mut B) {
         let size = self.texture_size();
         let anchor = [self.anchor[0] * size[0], self.anchor[1] * size[1]];
 
@@ -76,13 +63,13 @@ impl Sprite {
             model = model.trans(0.0, size[1] - 2.0 * anchor[1]).flip_v();
         }
 
-        // for debug
-        //model.rgb(1.0, 0.0, 0.0).draw(gl);
+        // for debug: bounding_box
+        //model.rgb(1.0, 0.0, 0.0).draw(b);
 
-        model.image(&*self.texture).draw(gl);
+        model.image(&*self.texture).draw(b);
 
-        // for debug
-        //c.trans(self.position[0], self.position[1]).rect(-5.0, -5.0, 10.0, 10.0).rgb(0.0, 0.0, 1.0).draw(gl);
+        // for debug: anchor point
+        //c.trans(self.position[0], self.position[1]).rect(-5.0, -5.0, 10.0, 10.0).rgb(0.0, 0.0, 1.0).draw(b);
     }
 
     pub fn bounding_box(&self) -> Rectangle {
@@ -103,7 +90,7 @@ impl Sprite {
         [w as f64, h as f64]
     }
 
-    pub fn texture(&self) -> Rc<Texture> {
+    pub fn texture(&self) -> Rc<I> {
         self.texture.clone()
     }
 }

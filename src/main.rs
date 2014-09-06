@@ -53,14 +53,17 @@ fn main() {
     );
 
     // load resources
-    let mut bg = Sprite::from_texture_path(&asset_store.path("img/bg_0.png").unwrap()).unwrap();
+    let bg_tex = Rc::new(Texture::from_path(&asset_store.path("img/bg_0.png").unwrap()).unwrap());
+    let mut bg = Sprite::from_texture(bg_tex);
     bg.anchor = [0.0, 0.0];
 
-    let mut cloud = Sprite::from_texture_path(&asset_store.path("img/cloud_0.png").unwrap()).unwrap();
+    let cloud_tex = Rc::new(Texture::from_path(&asset_store.path("img/cloud_0.png").unwrap()).unwrap());
+    let mut cloud = Sprite::from_texture(cloud_tex);
     cloud.anchor = [0.5, 0.0];
     cloud.position = [width as f64 / 2.0, 0.0];
 
-    let mut land = Sprite::from_texture_path(&asset_store.path("img/land.png").unwrap()).unwrap();
+    let land_tex = Rc::new(Texture::from_path(&asset_store.path("img/land.png").unwrap()).unwrap());
+    let mut land = Sprite::from_texture(land_tex);
     land.anchor = [0.0, 0.0];
     land.position = [0.0, height as f64 - land.texture_size()[1]];
 
