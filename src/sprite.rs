@@ -10,14 +10,13 @@ use graphics::internal::{
 };
 use graphics::vecmath::Scalar;
 
+/// A sprite is a texture with some properties.
 pub struct Sprite<I: ImageSize> {
     id: Uuid,
 
-    /// Normalized
     anchor: Vec2d,
 
     position: Vec2d,
-    /// In degree
     rotation: Scalar,
     scale: Vec2d,
 
@@ -31,6 +30,7 @@ pub struct Sprite<I: ImageSize> {
 }
 
 impl<I: ImageSize> Sprite<I> {
+    /// Crate sprite from a texture
     pub fn from_texture(texture: Rc<I>) -> Sprite<I> {
         Sprite {
             id: Uuid::new_v4(),
@@ -51,71 +51,103 @@ impl<I: ImageSize> Sprite<I> {
         }
     }
 
+    /// Get the sprite's id
     #[inline(always)]
     pub fn id(&self) -> Uuid {
         self.id
     }
 
+    /// Get the sprite's anchor point
+    ///
+    /// The value is normalized. Default value is [0.5, 0.5] (the center of texture)
     #[inline(always)]
     pub fn anchor(&self) -> (Scalar, Scalar) {
         (self.anchor[0], self.anchor[1])
     }
 
+    /// Set the sprite's anchor point
     #[inline(always)]
     pub fn set_anchor(&mut self, x: Scalar, y: Scalar) {
         self.anchor = [x, y];
     }
 
+    /// Get the sprite's position
     #[inline(always)]
     pub fn position(&self) -> (Scalar, Scalar) {
         (self.position[0], self.position[1])
     }
 
+    /// Set the sprite's position
     #[inline(always)]
     pub fn set_position(&mut self, x: Scalar, y: Scalar) {
         self.position = [x, y];
     }
 
+    /// Get the sprite's rotation (in degree)
     #[inline(always)]
     pub fn rotation(&self) -> Scalar {
         self.rotation
     }
 
+    /// Set the sprite's rotation (in degree)
     #[inline(always)]
     pub fn set_rotation(&mut self, deg: Scalar) {
         self.rotation = deg;
     }
 
+    /// Whether or not the sprite is flipped horizontally.
+    ///
+    /// It only flips the texture of the sprite,
+    /// and not the texture of the sprite’s children.
+    ///
+    /// Also, flipping the texture doesn’t alter the `anchor`.
+    ///
+    /// If you want to flip the `anchor` too,
+    /// and/or to flip the children too use: sprite.scale.x *= -1;
     #[inline(always)]
     pub fn flip_x(&self) -> bool {
         self.flip_x
     }
 
+    /// Flip the sprite
     #[inline(always)]
     pub fn set_flip_x(&mut self, flip_x: bool) {
         self.flip_x = flip_x;
     }
 
+    /// Whether or not the sprite is flipped vertically.
+    ///
+    /// It only flips the texture of the sprite,
+    /// and not the texture of the sprite’s children.
+    ///
+    /// Also, flipping the texture doesn’t alter the `anchor`.
+    ///
+    /// If you want to flip the `anchor` too,
+    /// and/or to flip the children too use: sprite.scale.y *= -1;
     #[inline(always)]
     pub fn flip_y(&self) -> bool {
         self.flip_y
     }
 
+    /// Flip the sprite
     #[inline(always)]
     pub fn set_flip_y(&mut self, flip_y: bool) {
         self.flip_y = flip_y;
     }
 
+    /// Get the sprite's texture
     #[inline(always)]
     pub fn texture(&self) -> &Rc<I> {
         &self.texture
     }
 
+    /// Set the sprite's texture
     #[inline(always)]
     pub fn set_texture(&mut self, texture: Rc<I>) {
         self.texture = texture;
     }
 
+    /// Add a sprite as the child of this sprite, return the added sprite's id.
     pub fn add_child(&mut self, sprite: Sprite<I>) -> Uuid {
         let id = sprite.id();
         self.children.push(sprite);
@@ -123,6 +155,7 @@ impl<I: ImageSize> Sprite<I> {
         id
     }
 
+    /// Find the child by `id` from this sprite's children or grandchild
     pub fn child(&self, id: Uuid) -> Option<&Sprite<I>> {
         match self.children_index.find(&id) {
             Some(i) => { Some(&self.children[*i]) },
@@ -141,6 +174,7 @@ impl<I: ImageSize> Sprite<I> {
         }
     }
 
+    /// Find the child by `id` from this sprite's children or grandchild, mutability
     pub fn child_mut(&mut self, id: Uuid) -> Option<&mut Sprite<I>> {
         match self.children_index.find(&id) {
             Some(i) => { Some(self.children.get_mut(*i)) },
@@ -159,6 +193,7 @@ impl<I: ImageSize> Sprite<I> {
         }
     }
 
+    /// Draw this sprite and it's children
     pub fn draw<B: BackEnd<I>>(&self, c: &Context, b: &mut B) {
         let (w, h) = self.texture.get_size();
         let w = w as f64;
@@ -195,6 +230,7 @@ impl<I: ImageSize> Sprite<I> {
         }
     }
 
+    /// Get the sprite's bounding box
     pub fn bounding_box(&self) -> Rectangle {
         let (w, h) = self.texture.get_size();
         let w = w as f64 * self.scale[0];
