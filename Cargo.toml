@@ -5,6 +5,10 @@ name = "swing-copters-rs"
 version = "0.0.1"
 authors = ["Coeuvre <coeuvre@gmail.com>"]
 
+[dependencies.uuid]
+
+git = "https://github.com/rust-lang/uuid"
+
 [dependencies.piston]
 
 git = "https://github.com/pistondevelopers/piston"
