@@ -46,8 +46,9 @@ fn get_window_size(asset_store: &AssetStore) -> (u32, u32) {
 fn main() {
     let asset_store = AssetStore::from_folder("../bin/assets");
     let (width, height) = get_window_size(&asset_store);
+    let opengl = piston::shader_version::opengl::OpenGL_3_2;
     let mut window = WindowSDL2::new(
-        piston::shader_version::opengl::OpenGL_3_2,
+        opengl,
         WindowSettings {
             title: "Swing Copters (Rust Clone)".to_string(),
             size: [width, height],
@@ -101,7 +102,7 @@ fn main() {
         updates_per_second: 120,
         max_frames_per_second: 60,
     };
-    let ref mut gl = Gl::new();
+    let ref mut gl = Gl::new(opengl);
     for e in EventIterator::new(&mut window, &event_settings) {
         match e {
             Render(args) => {

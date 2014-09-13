@@ -26,8 +26,8 @@ impl<I: ImageSize> Scene<I> {
         }
     }
 
-    //pub fn run_action(&mut self, sprite_id: Uuid, action: &Action) {
-    //}
+    pub fn run_action(&mut self, sprite_id: Uuid, action: &Action) {
+    }
 
     pub fn add_child(&mut self, sprite: Sprite<I>) -> Uuid {
         let id = sprite.id();
