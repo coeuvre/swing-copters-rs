@@ -3,6 +3,7 @@
 
 extern crate uuid;
 extern crate graphics;
+extern crate event;
 extern crate piston;
 extern crate sdl2_game_window;
 extern crate opengl_graphics;
@@ -30,7 +31,6 @@ use piston::image::{
     GenericImage,
 };
 
-pub use action::Action;
 pub use sprite::Sprite;
 pub use scene::Scene;
 
@@ -98,12 +98,19 @@ fn main() {
     let wheel_id = copter.add_child(wheel);
     let copter_id = main_scene.add_child(copter);
 
+    main_scene.run_action(copter_id, event::Sequence(vec![
+        event::Action(action::MoveBy(2.0, 0.0, -200.0)),
+        event::Action(action::ScaleTo(2.0, 2.0, 2.0)),
+    ]));
+    main_scene.run_action(copter_id, event::Action(action::RotateTo(4.0, 180.0)));
+
     let event_settings = EventSettings {
         updates_per_second: 120,
         max_frames_per_second: 60,
     };
     let ref mut gl = Gl::new(opengl);
     for e in EventIterator::new(&mut window, &event_settings) {
+        main_scene.update(&e);
         match e {
             Render(args) => {
                 gl.viewport(0, 0, args.width as i32, args.height as i32);

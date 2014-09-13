@@ -9,6 +9,11 @@ authors = ["Coeuvre <coeuvre@gmail.com>"]
 
 git = "https://github.com/rust-lang/uuid"
 
+[dependencies.event]
+
+git = "https://github.com/pistondevelopers/rust-event"
+branch = "expression"
+
 [dependencies.piston]
 
 git = "https://github.com/pistondevelopers/piston"
