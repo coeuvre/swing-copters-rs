@@ -91,6 +91,27 @@ impl Action {
                 let (ssx, ssy) = sprite.scale();
                 ScaleState(0.0, dur, ssx, ssy, ssx + dsx, ssy + dsy)
             },
+            FlipX(flip_x) => {
+                let flip_y = sprite.flip_y();
+                FlipState(flip_x, flip_y)
+            },
+            FlipY(flip_y) => {
+                let flip_x = sprite.flip_x();
+                FlipState(flip_x, flip_y)
+            },
+            Show => {
+                VisibilityState(true)
+            },
+            Hide => {
+                VisibilityState(false)
+            },
+            ToggleVisibility => {
+                let visible = sprite.visible();
+                VisibilityState(!visible)
+            },
+            Blink(dur, times) => {
+                BlinkState(0.0, dur, 0, 2 * times)
+            },
             _ => {
                 EmptyState
             },
@@ -107,6 +128,12 @@ pub enum ActionState {
     RotateState(f64, f64, Scalar, Scalar),
     /// past_time, duration, ssx, ssy, dsx, dsy
     ScaleState(f64, f64, Scalar, Scalar, Scalar, Scalar),
+    /// flip_x, flip_y
+    FlipState(bool, bool),
+    /// visible
+    VisibilityState(bool),
+    /// past_time, duration, blinked_times, total_times
+    BlinkState(f64, f64, uint, uint),
     /// An empty state
     EmptyState,
 }
@@ -116,7 +143,7 @@ impl ActionState {
     pub fn update<I: ImageSize>(&self, sprite: &mut Sprite<I>, dt: f64) -> (ActionState, Status, f64) {
         match *self {
             MoveState(past, dur, sx, sy, dx, dy) => {
-                if past + dt > dur {
+                if past + dt >= dur {
                     sprite.set_position(dx, dy);
                     (EmptyState, Success, past + dt - dur)
                 } else {
@@ -127,7 +154,7 @@ impl ActionState {
                 }
             },
             RotateState(past, dur, sd, dd) => {
-                if past + dt > dur {
+                if past + dt >= dur {
                     sprite.set_rotation(dd);
                     (EmptyState, Success, past + dt - dur)
                 } else {
@@ -138,13 +165,38 @@ impl ActionState {
                 }
             },
             ScaleState(past, dur, ssx, ssy, dsx, dsy) => {
-                if past + dt > dur {
+                if past + dt >= dur {
                     sprite.set_scale(dsx, dsy);
                     (EmptyState, Success, past + dt - dur)
                 } else {
                     let factor = (past + dt) / dur;
                     sprite.set_scale(ssx + (dsx - ssx) * factor, ssy + (dsy - ssy) * factor);
                     (ScaleState(past + dt, dur, ssx, ssy, dsx, dsy),
+                     Running, 0.0)
+                }
+            },
+            FlipState(flip_x, flip_y) => {
+                sprite.set_flip_x(flip_x);
+                sprite.set_flip_y(flip_y);
+                (EmptyState, Success, dt)
+            },
+            VisibilityState(visible) => {
+                sprite.set_visible(visible);
+                (EmptyState, Success, dt)
+            },
+            BlinkState(past, dur, cur, total) => {
+                let period = dur / total as f64;
+                if past + dt >= (cur + 1) as f64 * period {
+                    let visible = sprite.visible();
+                    sprite.set_visible(!visible);
+                    if past + dt >= dur {
+                        (EmptyState, Success, past + dt - dur)
+                    } else {
+                        (BlinkState(past + dt, dur, cur + 1, total),
+                         Running, 0.0)
+                    }
+                } else {
+                    (BlinkState(past + dt, dur, cur, total),
                      Running, 0.0)
                 }
             },

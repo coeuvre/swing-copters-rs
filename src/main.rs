@@ -101,8 +101,18 @@ fn main() {
     main_scene.run_action(copter_id, event::Sequence(vec![
         event::Action(action::MoveBy(2.0, 0.0, -200.0)),
         event::Action(action::ScaleTo(2.0, 2.0, 2.0)),
+        event::Action(action::Blink(2.0, 5)),
+        event::Action(action::FlipX(true)),
+        event::Wait(2.0),
+        event::Action(action::FlipX(false)),
     ]));
     main_scene.run_action(copter_id, event::Action(action::RotateTo(4.0, 180.0)));
+
+    main_scene.run_action(wheel_id, event::Sequence(vec![
+        event::Action(action::Hide),
+        event::Wait(2.0),
+        event::Action(action::Show),
+    ]));
 
     let event_settings = EventSettings {
         updates_per_second: 120,
