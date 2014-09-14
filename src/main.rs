@@ -3,7 +3,6 @@
 
 extern crate uuid;
 extern crate graphics;
-extern crate event;
 extern crate piston;
 extern crate sdl2_game_window;
 extern crate opengl_graphics;
@@ -30,13 +29,12 @@ use piston::image;
 use piston::image::{
     GenericImage,
 };
-
-pub use sprite::Sprite;
-pub use scene::Scene;
-
-pub mod action;
-pub mod scene;
-pub mod sprite;
+use piston::event;
+use piston::action;
+use piston::{
+    Scene,
+    Sprite,
+};
 
 fn get_window_size(asset_store: &AssetStore) -> (u32, u32) {
     let path = asset_store.path("img/bg_0.png").unwrap();

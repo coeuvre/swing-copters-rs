@@ -5,18 +5,10 @@ name = "swing-copters-rs"
 version = "0.0.1"
 authors = ["Coeuvre <coeuvre@gmail.com>"]
 
-[dependencies.uuid]
-
-git = "https://github.com/rust-lang/uuid"
-
-[dependencies.event]
-
-git = "https://github.com/pistondevelopers/rust-event"
-branch = "expression"
-
 [dependencies.piston]
 
-git = "https://github.com/pistondevelopers/piston"
+#git = "https://github.com/pistondevelopers/piston"
+path = "../../Samples/piston"
 
 [dependencies.sdl2_game_window]
 
