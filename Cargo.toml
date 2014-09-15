@@ -7,8 +7,7 @@ authors = ["Coeuvre <coeuvre@gmail.com>"]
 
 [dependencies.piston]
 
-#git = "https://github.com/pistondevelopers/piston"
-path = "../../Samples/piston"
+git = "https://github.com/pistondevelopers/piston"
 
 [dependencies.sdl2_game_window]
 

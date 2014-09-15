@@ -1,7 +1,6 @@
 
 #![feature(globs)]
 
-extern crate uuid;
 extern crate graphics;
 extern crate piston;
 extern crate sdl2_game_window;
@@ -24,16 +23,16 @@ use piston::{
     Update,
     Input,
 };
+use piston::sprite::*;
 use piston::input;
 use piston::image;
 use piston::image::{
     GenericImage,
 };
-use piston::event;
-use piston::action;
-use piston::{
-    Scene,
-    Sprite,
+use piston::event::{
+    Action,
+    Sequence,
+    Wait,
 };
 
 fn get_window_size(asset_store: &AssetStore) -> (u32, u32) {
@@ -96,20 +95,25 @@ fn main() {
     let wheel_id = copter.add_child(wheel);
     let copter_id = main_scene.add_child(copter);
 
-    main_scene.run_action(copter_id, event::Sequence(vec![
-        event::Action(action::MoveBy(2.0, 0.0, -200.0)),
-        event::Action(action::ScaleTo(2.0, 2.0, 2.0)),
-        event::Action(action::Blink(2.0, 5)),
-        event::Action(action::FlipX(true)),
-        event::Wait(2.0),
-        event::Action(action::FlipX(false)),
+    // Test actions
+    main_scene.run_action(copter_id, &Sequence(vec![
+        Action(Ease(EaseQuadraticOut, box MoveBy(2.0, 0.0, -200.0))),
+        //Action(MoveBy(2.0, 0.0, -200.0)),
+        Action(Ease(EaseQuinticIn, box ScaleTo(2.0, 2.0, 2.0))),
+        Action(Blink(2.0, 5)),
+        Action(FlipX(true)),
+        Wait(2.0),
+        Action(FlipX(false)),
+        Action(Ease(EaseQuadraticIn, box FadeOut(2.0))),
+        Action(Ease(EaseQuinticOut, box FadeIn(2.0))),
     ]));
-    main_scene.run_action(copter_id, event::Action(action::RotateTo(4.0, 180.0)));
+    let a = Action(Ease(EaseQuadraticInOut, box RotateTo(4.0, 180.0)));
+    main_scene.run_action(copter_id, &a);
 
-    main_scene.run_action(wheel_id, event::Sequence(vec![
-        event::Action(action::Hide),
-        event::Wait(2.0),
-        event::Action(action::Show),
+    main_scene.run_action(wheel_id, &Sequence(vec![
+        Action(Hide),
+        Wait(2.0),
+        Action(Show),
     ]));
 
     let event_settings = EventSettings {
@@ -125,29 +129,20 @@ fn main() {
 
                 let c = Context::abs(args.width as f64, args.height as f64);
 
-                /*
-                bg.draw(&c, gl);
-                cloud.draw(&c, gl);
-                land.draw(&c, gl);
-                copter.draw(&c, gl);
-                */
                 main_scene.draw(&c, gl);
             },
             Update(args) => {
                 wheel_texture_index = wheel_texture_index + args.dt * 20.0;
                 let ref tex = wheel_textures[wheel_texture_index as uint % wheel_textures.len()];
-                main_scene.child_mut(wheel_id).unwrap().set_texture(tex.clone());
+                match main_scene.child_mut(wheel_id) {
+                    Some(s) => s.set_texture(tex.clone()),
+                    _ => {},
+                }
             },
             Input(input::Press(_)) => {
-                let copter = main_scene.child_mut(copter_id).unwrap();
-                //copter.scale = [copter.scale[0] * -1.0, 1.0];
-                let flip_x = !copter.flip_x();
-                copter.set_flip_x(flip_x);
-                if !copter.flip_x() {
-                    copter.set_rotation(10.0);
-                } else {
-                    copter.set_rotation(-10.0);
-                }
+                //main_scene.toggle_action(copter_id, &a);
+                main_scene.remove_child(copter_id);
+                println!("{}", main_scene.running_actions());
             },
             _ => {},
         }
