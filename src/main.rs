@@ -96,7 +96,7 @@ fn main() {
     let copter_id = main_scene.add_child(copter);
 
     // Test actions
-    main_scene.run_action(copter_id, &Sequence(vec![
+    main_scene.run(copter_id, &Sequence(vec![
         Action(Ease(EaseQuadraticOut, box MoveBy(2.0, 0.0, -200.0))),
         //Action(MoveBy(2.0, 0.0, -200.0)),
         Action(Ease(EaseQuinticIn, box ScaleTo(2.0, 2.0, 2.0))),
@@ -108,9 +108,9 @@ fn main() {
         Action(Ease(EaseQuinticOut, box FadeIn(2.0))),
     ]));
     let a = Action(Ease(EaseQuadraticInOut, box RotateTo(4.0, 180.0)));
-    main_scene.run_action(copter_id, &a);
+    main_scene.run(copter_id, &a);
 
-    main_scene.run_action(wheel_id, &Sequence(vec![
+    main_scene.run(wheel_id, &Sequence(vec![
         Action(Hide),
         Wait(2.0),
         Action(Show),
@@ -142,7 +142,7 @@ fn main() {
             Input(input::Press(_)) => {
                 //main_scene.toggle_action(copter_id, &a);
                 main_scene.remove_child(copter_id);
-                println!("{}", main_scene.running_actions());
+                println!("{}", main_scene.running());
             },
             _ => {},
         }
